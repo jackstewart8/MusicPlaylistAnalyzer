@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
 
 namespace MusicPlaylistAnalyzer
 {
@@ -10,6 +9,22 @@ namespace MusicPlaylistAnalyzer
     {
         static void Main(string[] args)
         {
+            if (args.Length != 2)
+            {
+                Console.WriteLine("MusicPlaylistAnalyzer <Music_Playlist_File_Path> <Output_File_Path>");
+                Environment.Exit(1);
+
+                string SampleMusicPlaylist = args[0];
+                string reportFile = args[1];
+
+                if (!File.Exists(reportFile))
+                    using (StreamWriter newReport = new StreamWriter(reportFile))
+                        File.Create(reportFile);
+                else
+                    using (StreamWriter newReport = new StreamWriter(reportFile))
+                        newReport.WriteLine(string.Empty);
+            }
+
             RunText();
         }
         public static void printReport(IEnumerable<InfoLine> x)
@@ -25,7 +40,9 @@ namespace MusicPlaylistAnalyzer
                 .Select(line => new InfoLine(line.Split('\t')))
                 .ToList();
 
+
             musicList.RemoveAt(0);
+            var newList = musicList;
 
             var Plays200 = musicList.Where(song => song.songPlays >= 200).ToList();
 
@@ -53,9 +70,6 @@ namespace MusicPlaylistAnalyzer
             printReport(LongNames);
             Console.WriteLine("Longest song: " + LongTime);
 
-
-
-
         }
     }
 
@@ -69,11 +83,16 @@ namespace MusicPlaylistAnalyzer
         public int songTime;
         public int songYear;
         public int songPlays;
+        int checkSize = 0;
+        int checkTime = 0;
+        int checkYear = 0;
+        int checkPlays = 0;
 
         public override string ToString()
         {
             return String.Format("Name: {0}, Artist: {1}, Album: {2}, Genre: {3}, Size: {4}, Time: {5}, Year: {6}, Plays: {7}",
                 this.songName, this.songArtist, this.songAlbum, this.songGenre, this.songSize, this.songTime, this.songYear, this.songPlays);
+
         }
 
         public InfoLine(string[] test)
@@ -85,24 +104,60 @@ namespace MusicPlaylistAnalyzer
 
             int parsedNumber;
             bool success4 = Int32.TryParse(test[4], out parsedNumber);
-            this.songSize = success4 ? parsedNumber : -1;
+            this.songSize = success4 ? parsedNumber : checkSize++;
+
+            if (checkSize >= 2)
+            {
+                throw new Exception("Wrong size");
+            }
+
+            if (success4 == false)
+            {
+                checkSize++;
+            }
 
             bool success5 = Int32.TryParse(test[5], out parsedNumber);
-            this.songTime = success4 ? parsedNumber : -1;
+            this.songTime = success4 ? parsedNumber : checkTime++;
 
+            if (checkTime >= 2)
+            {
+                throw new Exception("Wrong time");
+            }
+
+            if (success4 == false)
+            {
+                checkTime++;
+            }
 
             bool success6 = Int32.TryParse(test[6], out parsedNumber);
-            this.songYear = success4 ? parsedNumber : -1;
+            this.songYear = success4 ? parsedNumber : checkYear++;
 
+            if (checkYear >= 2)
+            {
+                throw new Exception("Wrong year");
+            }
+
+            if (success4 == false)
+            {
+                checkYear++;
+            }
 
             bool success7 = Int32.TryParse(test[7], out parsedNumber);
-            this.songPlays = success4 ? parsedNumber : -1;
+            this.songPlays = success4 ? parsedNumber : checkPlays++;
 
+            if (checkPlays >= 2)
+            {
+                throw new Exception("Wrong polays");
+            }
+
+            if (success4 == false)
+            {
+                checkPlays++;
+            }
 
         }
-
-
     }
 }
+
 
 
